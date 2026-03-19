@@ -1,277 +1,303 @@
-# 🚀 Deploy no Railway
+# 🚀 Deploy no Railway - Configuração Monorepo
 
-Este guia explica como fazer deploy do AqysProvas (monorepo fullstack) no Railway.
+Este guia explica como fazer deploy do AqysProvas no Railway considerando a estrutura de **monorepo** onde o projeto está dentro de um subdiretório.
 
-## 📋 Pré-requisitos
-
-1. Conta no [Railway.app](https://railway.app)
-2. Repositório Git (GitHub/GitLab/Bitbucket) do projeto
-3. Conta conectada ao Railway
-
-## 🏗️ Estrutura Preparada para Railway
-
-O projeto está configurado para deploy no Railway como **monorepo** com:
-
-### Arquivos de Configuração
-
-- **`railway.json`** - Configuração do Railway (builder, start command)
-- **`Procfile`** - Define o comando de inicialização
-- **`.nvmrc`** - Especifica Node.js v20
-- **`package.json`** - Scripts unificados de build e start
-
-### Scripts NPM
-
-```json
-{
-  "build": "npm run build:backend && npm run build:frontend",
-  "build:backend": "tsc",
-  "build:frontend": "cd frontend && npm install && npm run build",
-  "postbuild": "npm run copy:frontend",
-  "copy:frontend": "mkdir -p dist/public && cp -r frontend/dist/* dist/public/",
-  "start:prod": "npm run build && npm start"
-}
-```
-
-### Arquitetura de Deploy
+## 📁 Estrutura do Repositório
 
 ```
-Requisição → Railway (Porta Dinâmica)
-              ↓
-         Express Server
-              ↓
-    ┌─────────┴──────────┐
-    ↓                    ↓
-/api/*               /*
-Backend REST      Frontend SPA
-(JSON)            (HTML/CSS/JS)
+TALP/                           ← Raiz do repositório Git
+└── experimento1/               ← Projeto AqysProvas aqui
+    ├── src/                    ← Backend
+    ├── frontend/               ← Frontend
+    ├── package.json
+    ├── railway.toml            ← Configuração Railway
+    └── ...
 ```
 
-**Backend**: Serve API REST em `/api/*`  
-**Frontend**: Servido como arquivos estáticos de `dist/public/`  
-**Routing**: Catch-all `/*` retorna `index.html` (suporte SPA)
+## ⚠️ Problema Comum
 
-## 🚀 Passo a Passo do Deploy
+Railway por padrão tenta fazer build da **raiz do repositório**. Se seu `package.json` está em um subdiretório, você verá:
 
-### 1. Push para Repositório Git
+```
+⚠ Script start.sh not found
+✖ Railpack could not determine how to build the app.
+```
+
+## ✅ Solução: Configurar Root Directory
+
+Há **duas formas** de resolver:
+
+### Opção 1: Via Interface do Railway (Recomendado)
+
+1. Acesse o projeto no Railway Dashboard
+2. Vá em **Settings**
+3. Na seção **Build**, configure:
+   - **Root Directory**: `experimento1`
+   - **Build Command**: `npm run build` (opcional, Railway detecta)
+   - **Start Command**: `npm run start:prod` (opcional, Railway detecta)
+4. Click **Deploy** novamente
+
+### Opção 2: Via railway.toml (Já Configurado)
+
+O arquivo `railway.toml` já está criado no projeto:
+
+```toml
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm run build"
+
+[deploy]
+startCommand = "npm run start:prod"
+restartPolicyType = "on-failure"
+restartPolicyMaxRetries = 10
+```
+
+**IMPORTANTE**: Você ainda precisa configurar o **Root Directory** na interface:
+- Railway **NÃO** lê `rootDirectory` do `railway.toml`
+- Deve ser configurado em **Settings → Root Directory**
+
+## 🚀 Passo a Passo Completo
+
+### 1. Commit e Push
 
 ```bash
 cd /home/andre/workspace/cin/TALP/experimento1
-
-# Inicializar git (se ainda não foi)
-git init
 git add .
-git commit -m "feat: setup Railway deployment"
-
-# Adicionar remote e push
-git remote add origin https://github.com/seu-usuario/aqysprovas.git
-git push -u origin main
+git commit -m "feat: Railway deployment config"
+cd ..
+git push origin main
 ```
 
 ### 2. Criar Projeto no Railway
 
 1. Acesse [railway.app](https://railway.app)
-2. Click **"New Project"**
-3. Selecione **"Deploy from GitHub repo"**
-4. Escolha o repositório `aqysprovas`
-5. Railway detecta automaticamente Node.js
+2. **New Project** → **Deploy from GitHub repo**
+3. Selecione repositório **TALP**
+4. Railway tenta fazer build → **FALHA** (esperado)
 
-### 3. Configurar Variáveis de Ambiente
+### 3. Configurar Root Directory
 
-No painel do Railway, vá em **Variables** e adicione:
+1. No Railway Dashboard, vá em **Settings**
+2. Procure por **Root Directory** ou **Service Settings**
+3. Configure:
+   ```
+   Root Directory: experimento1
+   ```
+4. **Save Changes**
 
-```env
-NODE_VERSION=20
-PORT=<railway-gera-automaticamente>
-```
+### 4. Redeploy
 
-**Importante**: Railway gera `PORT` automaticamente. Não sobrescreva.
-
-### 4. Deploy Automático
-
-Railway automaticamente:
-1. ✅ Executa `npm install`
-2. ✅ Executa `npm run build` (compila backend + frontend)
-3. ✅ Executa `npm run copy:frontend` (copia frontend para dist/public)
-4. ✅ Inicia com `npm run start:prod`
+1. Vá em **Deployments**
+2. Click **Deploy** ou **Redeploy**
+3. Railway agora encontra `package.json` em `experimento1/`
+4. Build deve funcionar:
+   ```
+   ✓ Found package.json
+   ✓ Installing dependencies
+   ✓ Running npm run build
+   ✓ Starting with npm run start:prod
+   ```
 
 ### 5. Verificar Deploy
 
-Após deploy concluído:
+Railway fornece URL pública: `https://seu-app.railway.app`
 
-1. Railway fornece URL pública: `https://seu-app.railway.app`
-2. Acesse a URL para testar o frontend
-3. Teste API: `https://seu-app.railway.app/api/health`
+Teste:
+- **Frontend**: `https://seu-app.railway.app/`
+- **API Health**: `https://seu-app.railway.app/api/health`
 
-**Resposta esperada**:
-```json
-{
-  "status": "ok",
-  "message": "AqysProvas API is running"
-}
+## 🎯 Configurações no Railway Dashboard
+
+### Settings → Build
+
+```
+Root Directory: experimento1
+Build Command: npm run build (Railway detecta automaticamente)
+Install Command: npm install (Railway detecta automaticamente)
 ```
 
-## 🔧 Configurações Avançadas
+### Settings → Deploy
 
-### Custom Domain (Opcional)
+```
+Start Command: npm run start:prod (ou Railway usa package.json)
+Restart Policy: On Failure
+```
 
-1. No Railway, vá em **Settings → Domains**
-2. Click **Generate Domain** ou **Add Custom Domain**
-3. Configure DNS conforme instruções
+### Variables
 
-### Logs e Monitoramento
+Railway gera automaticamente:
+```env
+PORT=<gerado-pelo-railway>
+NODE_VERSION=20 (detecta de .nvmrc)
+```
 
+Adicione se necessário:
+```env
+NODE_ENV=production
+```
+
+## 📊 Estrutura de Deploy
+
+```
+GitHub: TALP/experimento1/
+         ↓
+Railway detecta subdiretório
+         ↓
+cd experimento1/
+npm install
+npm run build (compila backend + frontend)
+npm run start:prod
+         ↓
+Express Server (porta dinâmica)
+         ↓
+    ┌────┴─────┐
+    ↓          ↓
+ /api/*     /*
+Backend    Frontend
+```
+
+## 🔧 Troubleshooting
+
+### Erro: "Script start.sh not found"
+
+**Causa**: Railway não encontra `package.json` (está procurando na raiz)
+
+**Solução**:
+1. Settings → Root Directory → `experimento1`
+2. Save e Redeploy
+
+### Erro: "Module not found"
+
+**Causa**: Dependências não instaladas corretamente
+
+**Solução**:
 ```bash
-# Ver logs em tempo real no Railway Dashboard
-# Ou usar Railway CLI
-railway logs
+# Localmente, teste:
+cd /home/andre/workspace/cin/TALP/experimento1
+rm -rf node_modules frontend/node_modules
+npm run build
 ```
 
-### Persistência de Dados
+Se funcionar local, funciona no Railway.
 
-⚠️ **Importante**: Railway usa **sistema de arquivos efêmero**. Dados em `data/*.json` serão perdidos a cada redeploy.
+### Erro: "Port already in use"
 
-**Soluções**:
+**Causa**: Porta hardcoded no código
 
-#### Opção 1: Railway Volume (Persistência)
+**Solução**: `src/server.ts` já usa `process.env.PORT || 3001` ✅
 
-```json
-// railway.json
-{
-  "deploy": {
-    "volumes": [
-      {
-        "mountPath": "/app/data",
-        "name": "aqysprovas-data"
-      }
-    ]
-  }
-}
+### Build Timeout
+
+**Causa**: Frontend build demora muito
+
+**Solução**: Railway oferece até 20 minutos, mas configure:
+```toml
+[build]
+watchPatterns = ["src/**", "frontend/src/**"]
 ```
 
-#### Opção 2: Banco de Dados Externo
+### Dados não persistem
 
-Migrar de JSON para:
-- **PostgreSQL** (Railway fornece gratuitamente)
-- **MongoDB Atlas**
-- **Supabase**
+**Causa**: Filesystem efêmero do Railway
 
-### Variáveis de Ambiente Adicionais
+**Solução**:
+1. **Railway Volumes** (persistência)
+   - Settings → Volumes
+   - Mount Path: `/app/data`
+   
+2. **PostgreSQL** (Railway fornece grátis)
+   - Add Database → PostgreSQL
+   - Migrar de JSON para SQL
+
+## 📝 Variáveis de Ambiente Úteis
 
 ```env
+# Railway gera automaticamente
+PORT=<dinamico>
+RAILWAY_ENVIRONMENT=production
+
+# Adicionar manualmente se necessário
 NODE_ENV=production
 LOG_LEVEL=info
 ```
 
-## 🧪 Testar Localmente como Produção
-
-```bash
-# Build completo (backend + frontend)
-npm run build
-
-# Iniciar servidor
-npm start
-
-# Acesse http://localhost:3001
-# Frontend + Backend na mesma porta
-```
-
-## 📊 Monitoramento
-
-Railway fornece:
-- ✅ Logs em tempo real
-- ✅ Métricas de CPU/RAM
-- ✅ Status de deploy
-- ✅ Histórico de builds
-
-## ⚠️ Troubleshooting
-
-### Erro: "Module not found"
-
-```bash
-# Certifique-se que todas as dependências estão em package.json
-npm install --save <pacote-faltando>
-git add package.json package-lock.json
-git commit -m "fix: add missing dependency"
-git push
-```
-
-### Erro: "Port already in use"
-
-Railway gerencia a porta automaticamente via `process.env.PORT`.  
-Não force porta fixa em produção.
-
-### Build Timeout
-
-Se build demora muito:
-
-```json
-// railway.json
-{
-  "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "npm run build"
-  }
-}
-```
-
-### Frontend não carrega
-
-Verifique:
-1. `dist/public/` contém `index.html` e `assets/`
-2. `server.ts` tem `app.use(express.static(frontendPath))`
-3. Catch-all route está após todas as rotas de API
-
 ## 🔄 CI/CD Automático
 
-Railway faz deploy automático em cada push para `main`:
+Railway faz deploy automático:
 
 ```bash
-git add .
+cd /home/andre/workspace/cin/TALP
+git add experimento1/
 git commit -m "feat: nova funcionalidade"
 git push origin main
-# Railway detecta push e faz deploy automaticamente
+# Railway detecta push → redeploy automático
 ```
 
-## 📱 Configurações de Rollback
+## 📱 Monitoramento
 
-Railway mantém histórico de deploys. Para rollback:
+Railway Dashboard mostra:
+- ✅ Logs em tempo real
+- ✅ CPU/RAM usage
+- ✅ Request metrics
+- ✅ Deploy history
 
-1. Vá em **Deployments**
-2. Selecione deploy anterior
-3. Click **Redeploy**
+## 💡 Dicas
 
-## 💰 Custos
+### Deploy mais rápido
 
-**Railway Free Tier**:
-- ✅ $5 crédito mensal
-- ✅ Suficiente para projetos pequenos/acadêmicos
-- ⚠️ Aplicação hiberna após inatividade
+Configure `.railwayignore` (como `.gitignore`):
+```
+node_modules/
+.git/
+*.log
+tests/
+features/
+```
 
-**Pro Plan** ($20/mês):
-- Sem hibernação
-- Mais recursos
-- Custom domains ilimitados
+### Múltiplos ambientes
 
-## 📚 Referências
+Crie branches:
+- `main` → Produção
+- `dev` → Staging
+
+Railway pode criar serviço separado para cada branch.
+
+### Custom Domain
+
+1. Settings → Domains
+2. Add Custom Domain
+3. Configure DNS (CNAME):
+   ```
+   app.seudominio.com → seu-app.railway.app
+   ```
+
+## 🆘 Suporte
 
 - [Railway Docs](https://docs.railway.app)
-- [Railway CLI](https://docs.railway.app/develop/cli)
-- [Nixpacks](https://nixpacks.com/docs)
+- [Railway Discord](https://discord.gg/railway)
+- [Railway Templates](https://railway.app/templates)
+
+## 📋 Checklist de Deploy
+
+- [x] `railway.toml` criado em `experimento1/`
+- [x] `.nvmrc` com Node.js v20
+- [x] `package.json` com script `start:prod`
+- [x] Frontend build configurado
+- [ ] Push para GitHub
+- [ ] Criar projeto no Railway
+- [ ] **Configurar Root Directory: `experimento1`** ⚠️ **CRUCIAL**
+- [ ] Redeploy
+- [ ] Testar URL fornecida
+
+## 🎉 Resumo
+
+**Comando mais importante**:
+```
+Railway Settings → Root Directory → experimento1
+```
+
+Sem isso, Railway não encontra seu `package.json`!
 
 ---
 
-**Resumo dos Comandos**:
-
-```bash
-# Local
-npm run build       # Build completo
-npm start          # Iniciar produção local
-
-# Deploy
-git push origin main   # Railway faz deploy automático
-
-# Logs
-railway logs          # Ver logs (requer Railway CLI)
-```
-
-✅ **Projeto pronto para deploy no Railway!**
+✅ **Projeto pronto para deploy no Railway com estrutura de monorepo!**
