@@ -4,10 +4,16 @@
   "description": "Sistema de gerenciamento de provas",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "tsc",
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "postbuild": "npm run copy:frontend",
+    "copy:frontend": "mkdir -p dist/public && cp -r frontend/dist/* dist/public/",
     "test": "cucumber-js",
     "dev": "ts-node src/server.ts",
-    "start": "node dist/server.js"
+    "dev:frontend": "cd frontend && npm run dev",
+    "start": "node dist/server.js",
+    "start:prod": "npm run build && npm start"
   },
   "keywords": [],
   "author": "",

@@ -1,6 +1,7 @@
 import { Question, Exam, AlternativeType, ExamResult, CorrectionType, Alternative, ExamHeader } from '../types';
 
-const API_BASE = '/api';
+// Em produção, usa a mesma origem; em dev, usa proxy do Vite
+const API_BASE = import.meta.env.PROD ? '/api' : '/api';
 
 /**
  * Serviço para comunicação com a API de questões

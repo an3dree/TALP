@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import path from 'path';
 import { questionService } from './services/QuestionService';
 import { examService } from './services/ExamService';
 import { correctionService } from './services/CorrectionService';
@@ -12,6 +13,10 @@ const PORT = process.env.PORT || 3001;
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Servir arquivos estáticos do frontend (produção)
+const frontendPath = path.join(__dirname, 'public');
+app.use(express.static(frontendPath));
 
 // Health check
 app.get('/api/health', (req: Request, res: Response) => {
@@ -262,11 +267,23 @@ app.post('/api/correction/csv', (req: Request, res: Response) => {
   }
 });
 
+// Rota catch-all: serve o index.html do frontend para suportar SPA routing
+// IMPORTANTE: Deve ser a ÚLTIMA rota registrada
+app.use((req: Request, res: Response) => {
+  // Somente retorna index.html se não for rota de API
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  } else {
+    res.status(404).json({ error: 'API endpoint not found' });
+  }
+});
+
 // Inicializa o servidor
 app.listen(PORT, () => {
   console.log(`🚀 AqysProvas Backend rodando na porta ${PORT}`);
   console.log(`📍 API: http://localhost:${PORT}/api`);
   console.log(`💚 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🎨 Frontend: http://localhost:${PORT}`);
 });
 
 export default app;

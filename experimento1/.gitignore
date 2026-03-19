@@ -1,6 +1,24 @@
-node_modules/
+# Arquivos de build
 dist/
-reports/
-data/*.json
+frontend/dist/
+frontend/node_modules/
+node_modules/
 *.log
+
+# Arquivos de ambiente
 .env
+.env.local
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Dados locais (JSON)
+data/*.json
+!data/.gitkeep
