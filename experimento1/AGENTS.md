@@ -5,7 +5,8 @@ Será responsável por gerar o código, os testes e documentar.
 
 ## Stack
 
- - Node.Js com TypeScript puro
+ - Node.Js com TypeScript puro no backend
+ - React com TypeScript no frontend
  - Não utilize bibliotecas externas a menos que seja estritamente necessário
  - Para testes utilizaremos Gherkin e cucumber
  - Persistência de dados em Json local
