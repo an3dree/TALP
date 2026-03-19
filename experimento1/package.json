@@ -1,0 +1,20 @@
+{
+  "name": "aqysprovas",
+  "version": "1.0.0",
+  "description": "Sistema de gerenciamento de provas",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "cucumber-js",
+    "dev": "ts-node src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.3.1",
+    "@types/node": "^20.11.19",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
