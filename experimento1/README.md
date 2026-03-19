@@ -1,6 +1,6 @@
 # AqysProvas
 
-Sistema de gerenciamento de provas desenvolvido em Node.js com TypeScript.
+Sistema fullstack de gerenciamento de provas desenvolvido com Node.js + TypeScript (backend) e React (frontend).
 
 ## Estrutura do Projeto
 
@@ -18,11 +18,32 @@ Sistema de gerenciamento de provas desenvolvido em Node.js com TypeScript.
 - `npm install` - Instalar dependências
 - `npm run build` - Compilar TypeScript
 - `npm test` - Executar testes
-- `npm run dev` - Executar em modo desenvolvimento
+- `npm run dev` - Executar servidor backend em modo desenvolvimento
+- `npm start` - Executar servidor backend em produção (após build)
+
+## Iniciar o Backend
+
+```bash
+npm run dev
+```
+
+O servidor estará disponível em `http://localhost:3001`
+
+Endpoints principais:
+- Health check: `GET http://localhost:3001/api/health`
+- Questões: `http://localhost:3001/api/questions`
+- Provas: `http://localhost:3001/api/exams`
 
 ## Stack Tecnológica
 
-- Node.js
-- TypeScript
+**Backend:**
+- Node.js + TypeScript
+- Express (API REST)
 - Cucumber (Testes BDD)
 - JSON (Persistência local)
+
+**Frontend:**
+- React (a ser implementado)
+
+**Comunicação:**
+- API REST (CORS habilitado)
