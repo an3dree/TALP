@@ -7,5 +7,5 @@ Disciplina ministrada pelo professor Paulo Borba no programa de Pós-Graduação
 Repositório segue a estrutura de monorepo onde cada exercício/experimento estará em uma pasta com seu projeto
 
 ### Experimento 1
- - [Repositório](https://github.com/an3dree/TALP/tree/main/experimento1)
+ - [Repositório](https://github.com/an3dree/TALP/tree/main/sistema1)
  - [Live](https://talp-production.up.railway.app/)
