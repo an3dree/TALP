@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Exam } from '../types';
+import { Exam, GeneratedExam } from '../types';
 import { examService } from '../services/api';
+import { pdfService } from '../services/PdfService';
 
 /**
  * Página de geração de provas individuais
@@ -12,6 +13,7 @@ export default function GeneratePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [generatedExams, setGeneratedExams] = useState<GeneratedExam[]>([]);
 
   useEffect(() => {
     loadExams();
@@ -35,9 +37,9 @@ export default function GeneratePage() {
     try {
       setLoading(true);
       setError('');
-      await examService.generateIndividual(selectedExamId, count);
-      setSuccess(`${count} provas individuais geradas com sucesso!`);
-      setTimeout(() => setSuccess(''), 3000);
+      const result = await examService.generateIndividual(selectedExamId, count);
+      setGeneratedExams(result.generatedExams);
+      setSuccess(`${count} provas individuais geradas com sucesso! Agora você pode baixar os PDFs.`);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -61,6 +63,51 @@ export default function GeneratePage() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadAllPDFs = () => {
+    if (generatedExams.length === 0) {
+      setError('Gere as provas primeiro');
+      return;
+    }
+
+    const exam = exams.find(e => e.id === selectedExamId);
+    if (!exam) {
+      setError('Prova não encontrada');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+      pdfService.downloadAllExams(generatedExams, exam.header, exam.alternativeType, exam.name);
+      setSuccess('PDF com todas as provas baixado com sucesso!');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownloadSinglePDF = (examNumber: number) => {
+    const exam = exams.find(e => e.id === selectedExamId);
+    if (!exam) {
+      setError('Prova não encontrada');
+      return;
+    }
+
+    const generatedExam = generatedExams.find(ge => ge.examNumber === examNumber);
+    if (!generatedExam) {
+      setError('Prova gerada não encontrada');
+      return;
+    }
+
+    try {
+      pdfService.downloadSingleExam(generatedExam, exam.header, exam.alternativeType, exam.name);
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
@@ -129,6 +176,42 @@ export default function GeneratePage() {
         )}
       </div>
 
+      {generatedExams.length > 0 && (
+        <div className="card">
+          <h2 className="card-title">📄 Provas Geradas ({generatedExams.length})</h2>
+          <p className="mb-3">Baixe os PDFs das provas individuais ou todas de uma vez:</p>
+          
+          <div className="flex mb-3">
+            <button
+              className="btn btn-primary"
+              onClick={handleDownloadAllPDFs}
+              disabled={loading}
+            >
+              📦 Baixar Todas as Provas (PDF Único)
+            </button>
+          </div>
+
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
+            gap: '1rem',
+            maxHeight: '400px',
+            overflowY: 'auto'
+          }}>
+            {generatedExams.map((exam) => (
+              <button
+                key={exam.examNumber}
+                className="btn btn-secondary"
+                onClick={() => handleDownloadSinglePDF(exam.examNumber)}
+                style={{ padding: '0.75rem' }}
+              >
+                📄 Prova {exam.examNumber}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="card">
         <h2 className="card-title">ℹ️ Informações</h2>
         <ul style={{ lineHeight: '2' }}>
@@ -136,6 +219,7 @@ export default function GeneratePage() {
           <li>As alternativas de cada questão também serão embaralhadas</li>
           <li>O gabarito CSV contém as respostas corretas para cada prova gerada</li>
           <li>Use o gabarito CSV para corrigir as respostas dos alunos</li>
+          <li>Após gerar, baixe os PDFs das provas individuais ou todas de uma vez</li>
         </ul>
       </div>
     </div>
