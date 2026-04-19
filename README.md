@@ -7,7 +7,16 @@ Disciplina ministrada pelo professor Paulo Borba no programa de Pós-Graduação
 Repositório segue a estrutura de monorepo onde cada exercício/experimento estará em uma pasta com seu projeto
 
 ### Experimento 1
+
+  Sistema de gerenciamento de provas
+
+#### Agente - Crush
+#### Modelo - Cloude Sonnet 4.5 
+#### Utilizado [AGENTS.md]()
+
  - [Repositório](https://github.com/an3dree/TALP/tree/main/sistema1)
  - [Live](https://talp-production.up.railway.app/)
  - [Histórico de prompts](https://github.com/an3dree/TALP/blob/main/sistema1/Andre-TemplateDoHistorico.xlsx)
  - [Revisão do trabalho pelo colega](https://github.com/an3dree/TALP/blob/main/sistema1/RevisaoDoSistemaPeloMeuColega.md)
+ ---
+
