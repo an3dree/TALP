@@ -34,9 +34,9 @@ Repositório segue a estrutura de monorepo onde cada exercício/experimento esta
   
 ---
 
- - [Repositório](https://github.com/an3dree/TALP/tree/main/sistemas)
+ - [Repositório](https://github.com/an3dree/TALP/tree/main/sistema2)
  - [Live](https://talp-production-9746.up.railway.app/)
- - [Histórico de prompts](https://github.com/an3dree/TALP/blob/main/sistema2/Andre-TemplateDoHistorico.xlsx)
+ - [Histórico de prompts](https://github.com/an3dree/TALP/blob/main/sistema2/André Souza - TemplateDoHistorico.xlsx)
  - [Revisão do trabalho do colega](https://github.com/an3dree/TALP/blob/main/sistema2/RevisaoDoSistemaColega.md)
 
  ---
