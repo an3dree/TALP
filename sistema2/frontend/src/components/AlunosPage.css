@@ -1,0 +1,131 @@
+.alunos-page h2,
+.turmas-page h2,
+.avaliacoes-page h2 {
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.form {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.form input,
+.form select {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form button {
+  padding: 0.75rem 1.5rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.form button:hover {
+  background: #2980b9;
+}
+
+.table {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: #34495e;
+  color: white;
+}
+
+.table th,
+.table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.table button {
+  padding: 0.5rem 1rem;
+  margin-right: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.table button:first-child {
+  background: #27ae60;
+  color: white;
+}
+
+.table button:first-child:hover {
+  background: #229954;
+}
+
+.table button:last-child {
+  background: #e74c3c;
+  color: white;
+}
+
+.table button:last-child:hover {
+  background: #c0392b;
+}
+
+.conceito-selector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.conceito-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.conceito-btn.selected {
+  font-weight: bold;
+}
+
+.conceito-btn.MANA.selected {
+  background: #e74c3c;
+  color: white;
+  border-color: #e74c3c;
+}
+
+.conceito-btn.MPA.selected {
+  background: #f39c12;
+  color: white;
+  border-color: #f39c12;
+}
+
+.conceito-btn.MA.selected {
+  background: #27ae60;
+  color: white;
+  border-color: #27ae60;
+}
