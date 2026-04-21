@@ -59,19 +59,23 @@ app.post('/api/turmas/avaliar', (req, res) => turmaController.avaliarAluno(req, 
 // Routes - Notificações (envio de emails)
 app.post('/api/notificacoes/enviar', (req, res) => notificacaoController.enviarNotificacoesDoDia(req, res));
 
-// Serve frontend static files in production
-if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../../frontend/dist');
-  app.use(express.static(frontendPath));
-  
-  // SPA fallback - serve index.html for all non-API routes
-  app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api')) {
-      res.sendFile(path.join(frontendPath, 'index.html'));
-    }
-  });
-}
+// Servir arquivos estáticos do frontend (produção)
+const frontendPath = path.join(__dirname, 'public');
+app.use(express.static(frontendPath));
+
+// Rota catch-all: serve o index.html do frontend para suportar SPA routing
+// IMPORTANTE: Deve ser a ÚLTIMA rota registrada
+app.use((req, res) => {
+  // Somente retorna index.html se não for rota de API
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  } else {
+    res.status(404).json({ error: 'API endpoint not found' });
+  }
+});
 
 app.listen(PORT, () => {
-  console.log(`✅ Backend rodando na porta ${PORT}`);
+  console.log(`🚀 AqysAlunos Backend rodando na porta ${PORT}`);
+  console.log(`📍 API: http://localhost:${PORT}/api`);
+  console.log(`🎨 Frontend: http://localhost:${PORT}`);
 });
