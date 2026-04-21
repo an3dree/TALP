@@ -6,13 +6,13 @@ Sistema web fullstack para gerenciamento de alunos, turmas e avaliações.
 
 ```
 sistema2/
-├── shared/           # Tipos e interfaces compartilhadas (TypeScript)
 ├── backend/          # API Node.js com Express e TypeScript
 │   ├── src/
 │   │   ├── domain/       # Regras de negócio e serviços
 │   │   ├── infra/        # Repositórios e serviços de infraestrutura
 │   │   ├── interfaces/   # Controllers da API
 │   │   └── server.ts     # Servidor Express
+│   ├── test/         # Testes Cucumber (BDD)
 │   └── data/         # Arquivos JSON de persistência
 └── frontend/         # Aplicação React com TypeScript
     └── src/
@@ -28,6 +28,7 @@ sistema2/
 - Express para API REST
 - Persistência em arquivos JSON
 - Clean Architecture (Domain, Infra, Interfaces)
+- Cucumber para testes BDD
 
 ### Frontend
 - React com TypeScript
@@ -35,7 +36,7 @@ sistema2/
 - TanStack Query (React Query) para gerenciamento de estado
 - CSS Modules para estilização
 
-## Como Executar
+## Como Executar (Desenvolvimento)
 
 ### Backend
 
@@ -57,6 +58,46 @@ npm run dev
 
 A aplicação rodará em `http://localhost:5173`
 
+### Testes
+
+```bash
+cd backend
+npm test
+```
+
+## Deploy no Railway
+
+O projeto está configurado para deploy no Railway como monorepo.
+
+### Configuração automática
+
+1. Conecte o repositório ao Railway
+2. Railway detectará automaticamente o `nixpacks.toml`
+3. O build instalará dependências e compilará frontend + backend
+4. O backend servirá os arquivos estáticos do frontend em produção
+
+### Variáveis de ambiente (Railway)
+
+| Variável | Descrição | Valor padrão |
+|----------|-----------|--------------|
+| `PORT` | Porta do servidor | Definido pelo Railway |
+| `NODE_ENV` | Ambiente | `production` |
+
+### Build manual
+
+```bash
+# Instalar dependências
+npm install --prefix backend
+npm install --prefix frontend
+
+# Build
+npm run build --prefix frontend
+npm run build --prefix backend
+
+# Iniciar em produção
+cd backend && NODE_ENV=production node dist/server.js
+```
+
 ## Funcionalidades
 
 1. **Gerenciamento de Alunos**
@@ -73,7 +114,12 @@ A aplicação rodará em `http://localhost:5173`
    - Conceitos: MANA (Meta Ainda Não Atingida), MPA (Meta Parcialmente Atingida), MA (Meta Atingida)
    - Notificação pendente quando avaliações são alteradas
 
-4. **Persistência**
+4. **Notificações por Email**
+   - Consolidação de alterações do dia
+   - Envio de email único com todas as alterações
+   - Agrupamento por turma
+
+5. **Persistência**
    - Dados salvos em arquivos JSON:
      - `backend/data/alunos.json`
      - `backend/data/turmas.json`
@@ -86,6 +132,7 @@ O projeto segue os princípios de:
 - **Clean Architecture**: Separação de domínio, infraestrutura e interfaces
 - **Pure Functions**: Lógica de negócio isolada de efeitos colaterais
 - **Componentes Atômicos**: Frontend organizado em componentes reutilizáveis
+- **BDD**: Testes escritos em Gherkin (Cucumber)
 
 ## Endpoints da API
 
@@ -105,3 +152,6 @@ O projeto segue os princípios de:
 - `POST /api/turmas/matricular` - Matricula aluno em turma
 - `DELETE /api/turmas/:turmaId/alunos/:alunoId` - Desmatricula aluno
 - `POST /api/turmas/avaliar` - Registra avaliação de aluno
+
+### Notificações
+- `POST /api/notificacoes/enviar` - Processa e envia emails do dia

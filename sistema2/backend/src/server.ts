@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { AlunoController } from './interfaces/AlunoController';
 import { TurmaController } from './interfaces/TurmaController';
 import { NotificacaoController } from './interfaces/NotificacaoController';
@@ -12,7 +13,7 @@ import { JsonNotificacaoRepository } from './infra/JsonNotificacaoRepository';
 import { ConsoleEmailService } from './infra/ConsoleEmailService';
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
@@ -57,6 +58,19 @@ app.post('/api/turmas/avaliar', (req, res) => turmaController.avaliarAluno(req, 
 
 // Routes - Notificações (envio de emails)
 app.post('/api/notificacoes/enviar', (req, res) => notificacaoController.enviarNotificacoesDoDia(req, res));
+
+// Serve frontend static files in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../../frontend/dist');
+  app.use(express.static(frontendPath));
+  
+  // SPA fallback - serve index.html for all non-API routes
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    }
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`✅ Backend rodando na porta ${PORT}`);

@@ -1,6 +1,7 @@
 import type { Aluno, Turma, CreateAlunoDTO, UpdateAlunoDTO, CreateTurmaDTO, UpdateTurmaDTO, MatricularAlunoDTO, AvaliarAlunoDTO, ApiResponse } from '../types';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+// In production, API is served from same origin; in dev, use localhost:3001
+const API_BASE_URL = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
